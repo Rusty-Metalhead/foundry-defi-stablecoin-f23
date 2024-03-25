@@ -53,8 +53,8 @@ contract HelperConfig is Script {
 
         anvilNetworkConfig = NetworkConfig({
             wethUsdPriceFeed: address(ethUsdPriceFeed), // ETH / USD
-            weth: address(wethMock),
             wbtcUsdPriceFeed: address(btcUsdPriceFeed),
+            weth: address(wethMock),
             wbtc: address(wbtcMock),
             deployerKey: DEFAULT_ANVIL_PRIVATE_KEY
         });
