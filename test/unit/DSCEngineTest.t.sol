@@ -51,6 +51,23 @@ contract DSCEngineTest is Test {
         vm.expectRevert(DSCEngine.DSCEngine__TokenAddressesAndPriceFeedAddressesMustBeSameLength.selector);
         new DSCEngine(tokenAddresses, priceFeedAddresses, address(dsc));
     }
+
+    function testConstructorExecutesAsExpected() public {
+        tokenAddresses.push(weth);
+        tokenAddresses.push(wbtc);
+
+        priceFeedAddresses.push(wethUsdPriceFeed);
+        priceFeedAddresses.push(wbtcUsdPriceFeed);
+
+        DSCEngine dscEngine = new DSCEngine(tokenAddresses, priceFeedAddresses, address(dsc));
+
+        uint8 expectedAddresses = 2;
+        address expectedDscAddress = address(dsc);
+
+        assertEq(expectedAddresses, dscEngine.getCollateralTokenAddress().length);
+        //assertEq(expectedAddresses, DSCEngine.s_tokenToPriceFeed().length);
+        assertEq(expectedDscAddress, dscEngine.getDscAddress());
+    }
     ////////////////////
     // PriceFeed Test //
     ////////////////////
