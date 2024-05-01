@@ -303,4 +303,8 @@ contract DSCEngine is ReentrancyGuard {
     function getCollateralTokenAddress() external view returns (address[] memory) {
         return s_collateralTokenAddress;
     }
+
+    function getCollateralBalanceOfUser(address user, address token) external view returns (uint256) {
+        return s_userToCollateralDeposited[user][token];
+    }
 }
