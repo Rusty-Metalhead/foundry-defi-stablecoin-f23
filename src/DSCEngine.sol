@@ -6,6 +6,8 @@ import {DecentralizedStableCoin} from "./DecentralizedStableCoin.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import {OracleLib} from "./libraries/OracleLib.sol";
+
 /**
  * @title DSCEngine
  * @author Rusty Metalhead
@@ -23,7 +25,6 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/Ag
  * @notice This contract is the core of DSC System. It handles all the logic for mining and redeeming DSC, as well as depositing and withdrawing collateral.
  * @notice This contract is loosely based on the MakerDao DSS (DAI) system.
  */
-
 contract DSCEngine is ReentrancyGuard {
     ////////////
     // ERRORS //
@@ -36,6 +37,11 @@ contract DSCEngine is ReentrancyGuard {
     error DSCEngine__BreaksHealthFactor(uint256 healthFactor);
     error DSCEngine__HealthFactorOk();
     error DSCEngine__HealthFactorNotImproved();
+
+    ///////////
+    // TYPES //
+    ///////////
+    using OracleLib for AggregatorV3Interface;
 
     /////////////////////
     // STATE VARIABLES //
@@ -276,14 +282,14 @@ contract DSCEngine is ReentrancyGuard {
 
     function getTokenUsdValue(address token, uint256 amount) public view returns (uint256) {
         AggregatorV3Interface priceFeed = AggregatorV3Interface(s_tokenToPriceFeed[token]);
-        (, int256 price,,,) = priceFeed.latestRoundData();
+        (, int256 price,,,) = priceFeed.staleCheckLatestRoundDate();
 
         return (uint256(price) * ADDITIONAL_FEED_PRECISION * amount) / PRECISION;
     }
 
     function getTokenAmountFromUsd(address token, uint256 usdAmountInWei) public view returns (uint256) {
         AggregatorV3Interface priceFeed = AggregatorV3Interface(s_tokenToPriceFeed[token]);
-        (, int256 price,,,) = priceFeed.latestRoundData();
+        (, int256 price,,,) = priceFeed.staleCheckLatestRoundDate();
 
         return ((usdAmountInWei * PRECISION) / (uint256(price) * ADDITIONAL_FEED_PRECISION));
     }
